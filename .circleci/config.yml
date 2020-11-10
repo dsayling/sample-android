@@ -1,17 +1,18 @@
 version: 2.1
 jobs:
-  build:
+  build-and-test:
     docker:
       - image: circleci/android:api-28
-    environment:
-      JVM_OPTS: -Xmx3200m
     steps:
+      # Checkout the code as the first step.
+      # Next attempt to restore the dependencies that have been cached.
+      # If they restore, great! The next step to install them should execute quickly.
+      # If not, the step will download them again.
+      # Then run your tests!
+      # CircleCI will report the results back to your VCS provider.
       - checkout
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-#      - run:
-#         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-#         command: sudo chmod +x ./gradlew
       - run:
           name: Download Dependencies
           command: ./gradlew androidDependencies
@@ -22,12 +23,9 @@ jobs:
       - run:
           name: Run Tests
           command: ./gradlew lint test
-      - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/ 
-          path: app/build/reports
-          destination: reports
-      - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-          path: app/build/test-results
+
+
 workflows:
   main:
     jobs:
-      - build
+      - build-and-test
