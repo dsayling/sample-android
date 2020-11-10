@@ -1,4 +1,8 @@
 version: 2.1
+
+orbs:
+  gradle: circleci/gradle@2.2
+
 jobs:
   build-and-test:
     docker:
@@ -11,18 +15,14 @@ jobs:
       # Then run your tests!
       # CircleCI will report the results back to your VCS provider.
       - checkout
-      - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-      - run:
-          name: Run Tests
-          command: ./gradlew lint test
+      - gradle/with_cache:
+          steps:
+            - run:
+                name: Download Dependencies
+                command: ./gradlew androidDependencies
+            - run:
+                name: Run Tests
+                command: ./gradlew lint test
 
 
 workflows:
