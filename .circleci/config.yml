@@ -1,31 +1,30 @@
 version: 2.1
 
-orbs:
-  gradle: circleci/gradle@2.2
-
 jobs:
-  build-and-test:
+  build-and-test:  # This is the name of the job, feel free to change it to better match what you're trying to do!
+    # These next lines defines a docker executors: https://circleci.com/docs/2.0/executor-types/
+    # You can specify an image from dockerhub or use one of the convenience images from CircleCI's Developer Hub
+    # A list of available CircleCI docker convenience images are available here: https://circleci.com/developer/images/image/cimg/android
     docker:
       - image: circleci/android:api-28
     steps:
       # Checkout the code as the first step.
-      # Next attempt to restore the dependencies that have been cached.
-      # If they restore, great! The next step to install them should execute quickly.
-      # If not, the step will download them again.
-      # Then run your tests!
+      # The next step will download the dependencies.
+      # Then lint and run your tests!
       # CircleCI will report the results back to your VCS provider.
       - checkout
-      - gradle/with_cache:
-          steps:
-            - run:
-                name: Download Dependencies
-                command: ./gradlew androidDependencies
-            - run:
-                name: Run Tests
-                command: ./gradlew lint test
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - run:
+          name: Run Tests
+          command: ./gradlew lint test
 
 
 workflows:
-  main:
+  sample:  # This is the name of the workflow, feel free to change it to better match your workflow.
+    # Inside the workflow, you define the jobs you want to run. 
+    # For more details on extending your workflow, see the configuration docs: https://circleci.com/docs/2.0/configuration-reference/#workflows 
     jobs:
       - build-and-test
+
